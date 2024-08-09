@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Basic {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(255)
+
+  @@map("basics")
+}
+
+model Pet {
+  id                    String   @id @default(uuid())
+  name                  String   @db.VarChar(255)
+  description           String   @db.VarChar(255)
+  age                   String   @db.VarChar(255)
+  size                  String   @db.VarChar(255)
+  level_of_energy       Int
+  level_of_independence String   @db.VarChar(255)
+  space_needed          String   @db.VarChar(255)
+  created_at            DateTime @default(now())
+  org                   Org      @relation(fields: [org_id], references: [id])
+  org_id                String
+
+  @@map("pets")
+}
+
+model Org {
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(255)
+  postal_code String   @db.VarChar(255)
+  city        String   @db.VarChar(255)
+  address     String   @db.VarChar(255)
+  phone       String   @unique @db.VarChar(255)
+  latitude    Decimal
+  longitude   Decimal
+  created_at  DateTime @default(now())
+  Pet         Pet[]
+
+  user       User   @relation(fields: [user_email], references: [email])
+  user_email String
+
+  @@map("orgs")
+}
+
+model User {
+  id       String @id @default(uuid())
+  name     String @db.VarChar(255)
+  email    String @unique @db.VarChar(255)
+  password String @db.VarChar(255)
+  role     Role   @default(MEMBER)
+  Org      Org[]
+
+  @@map("users")
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
